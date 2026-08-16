@@ -1,0 +1,21 @@
+{
+  "name": "@aprendaufu/database",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "prisma generate && tsc",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.0",
+    "typescript": "^5.7.3"
+  }
+}

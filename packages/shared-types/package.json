@@ -1,0 +1,10 @@
+{
+  "name": "@aprendaufu/shared-types",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

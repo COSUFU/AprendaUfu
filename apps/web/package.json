@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aprendaufu/shared-types": "*",
     "@aprendaufu/ui": "*",
     "next": "^15.1.6",
     "react": "^19.0.0",
