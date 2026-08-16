@@ -1,0 +1,11 @@
+@import "@aprendaufu/ui/globals.css";
+
+/*
+ * Efeito visual só da landing/login (aberração cromática sutil no heading).
+ * Fica aqui por ser específico desta página, não um token de design geral.
+ */
+.text-glitch {
+  text-shadow:
+    1px 0 0 rgba(45, 212, 191, 0.5),
+    -1px 0 0 rgba(244, 114, 182, 0.4);
+}
