@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tokens de design do AprendaUfu.
+ * Fonte única de verdade para cor/raio/fonte — os componentes em
+ * src/components e o preset em tailwind.config.ts só leem estas variáveis.
+ * Para ajustar o tema (ex.: dark mode, rebrand), muda só aqui.
+ */
+:root {
+  --au-background: 240 15% 5%;
+  --au-foreground: 0 0% 98%;
+
+  --au-muted: 240 6% 14%;
+  --au-muted-foreground: 240 5% 65%;
+
+  --au-card: 240 12% 9%;
+  --au-card-foreground: 0 0% 98%;
+
+  --au-border: 240 6% 20%;
+  --au-input: 240 8% 16%;
+
+  --au-accent: 75 100% 60%;
+  --au-accent-foreground: 240 15% 8%;
+
+  --au-ring: 75 100% 60%;
+
+  --au-radius: 14px;
+  --au-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+body {
+  @apply bg-background text-foreground;
+  font-family: var(--au-font-sans);
+}
