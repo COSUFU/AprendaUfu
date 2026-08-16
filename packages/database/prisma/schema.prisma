@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  student
+  teacher
+}
+
 model User {
   id           String   @id @default(uuid())
   username     String   @unique
@@ -15,6 +20,7 @@ model User {
   avatarUrl    String?  @map("avatar_url")
   bio          String?
   course       String?
+  role         Role     @default(student)
   level        Int      @default(1)
   xp           Int      @default(0)
   createdAt    DateTime @default(now()) @map("created_at")
