@@ -79,14 +79,11 @@ export interface ExemploResponseDto {
 ### Frame de referência da UI
 
 <!--
-Print/frame exato do vídeo de demonstração (Gravação de Tela) mostrando esta tela/estado.
-Anexar a imagem aqui (arrastar o arquivo no campo da issue no GitHub) ou linkar o arquivo em
-docs/ui-reference/ do repo. Indicar o timestamp do vídeo de origem para quem quiser conferir o
-contexto (transições, estado antes/depois).
+Print exato mostrando esta tela/estado. Anexar a imagem aqui (arrastar o arquivo no campo da
+issue no GitHub) ou linkar o arquivo em docs/ui-reference/ do repo.
 -->
 
-- **Timestamp no vídeo original:** `MM:SS`
-- **Frame:**
+- **Print:**
 
 ### Estados da tela a cobrir
 
