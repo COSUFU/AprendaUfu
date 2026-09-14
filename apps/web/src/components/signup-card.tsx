@@ -15,6 +15,7 @@ import {
   Input,
   Label,
 } from "@aprendaufu/ui";
+import { MESSAGES } from "@aprendaufu/messages";
 import { register, saveSession } from "@/lib/auth-client";
 import { ApiError } from "@/lib/api-client";
 
@@ -32,7 +33,7 @@ export function SignupCard() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("As senhas não coincidem.");
+      setError(MESSAGES.form.passwordsMismatch);
       return;
     }
 
@@ -42,7 +43,7 @@ export function SignupCard() {
       saveSession(auth);
       router.push("/");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Não foi possível criar a conta. Tente de novo.");
+      setError(err instanceof ApiError ? err.message : MESSAGES.form.signupFailed);
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aprendaufu/messages": "*",
     "@aprendaufu/shared-types": "*",
     "@aprendaufu/ui": "*",
     "next": "^15.1.6",

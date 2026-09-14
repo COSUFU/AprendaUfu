@@ -1,3 +1,5 @@
+import { MESSAGES } from '@aprendaufu/messages';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export class ApiError extends Error {
@@ -28,7 +30,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new ApiError(response.status, body?.message ?? 'Erro na requisição');
+    throw new ApiError(response.status, body?.message ?? MESSAGES.request.genericError);
   }
 
   return response.json();

@@ -1,29 +1,45 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma, User } from '@aprendaufu/database';
 import { comparePassword, hashPassword } from '@aprendaufu/auth';
+import { MESSAGES } from '@aprendaufu/messages';
 import type { AuthResponse } from '@aprendaufu/shared-types';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly jwt: JwtService) {}
 
-  async register(username: string, email: string, password: string): Promise<AuthResponse> {
-    const existing = await prisma.user.findFirst({ where: { OR: [{ email }, { username }] } });
+  async register(
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<AuthResponse> {
+    const existing = await prisma.user.findFirst({
+      where: { OR: [{ email }, { username }] },
+    });
     if (existing) {
-      throw new ConflictException('E-mail ou usuário já cadastrado');
+      throw new ConflictException(MESSAGES.auth.emailOrUsernameTaken);
     }
 
     const passwordHash = await hashPassword(password);
-    const user = await prisma.user.create({ data: { username, email, passwordHash } });
+    const user = await prisma.user.create({
+      data: { username, email, passwordHash },
+    });
 
     return this.buildResponse(user);
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user?.passwordHash || !(await comparePassword(password, user.passwordHash))) {
-      throw new UnauthorizedException('Credenciais inválidas');
+    if (
+      !user?.passwordHash ||
+      !(await comparePassword(password, user.passwordHash))
+    ) {
+      throw new UnauthorizedException(MESSAGES.auth.invalidCredentials);
     }
 
     return this.buildResponse(user);
