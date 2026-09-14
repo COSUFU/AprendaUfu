@@ -12,4 +12,11 @@ export const MESSAGES = {
   request: {
     genericError: 'Erro na requisição',
   },
+  errorPage: {
+    label: 'Erro 500',
+    title: 'Algo deu errado por aqui',
+    description:
+      'Tivemos um problema inesperado ao carregar esta página. Você pode tentar de novo.',
+    retry: 'Tentar de novo',
+  },
 } as const;
