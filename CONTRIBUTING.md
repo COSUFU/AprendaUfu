@@ -90,10 +90,23 @@ Nenhuma issue de implementação deve reinventar isso — deve **reutilizar**.
   Se um requisito precisar de um papel novo, adicione ao enum ali — não crie strings de papel
   soltas no código do domínio.
 
-- **OAuth (Google / conta institucional .edu.br):** ainda não implementado. Ao implementar,
-  siga o mesmo padrão — nova `PassportStrategy` em `packages/auth`, exportada por
-  `packages/auth/src/index.ts`, consumida pelo `AuthModule`. Não crie um fluxo de auth paralelo
-  fora de `packages/auth`.
+- **OAuth Google:** implementado seguindo o mesmo padrão — `GoogleStrategy`
+  (`packages/auth/src/google.strategy.ts`) e `GoogleOAuthGuard`
+  (`packages/auth/src/google-oauth.guard.ts`), exportados por `packages/auth/src/index.ts` e
+  consumidos pelo `AuthModule`. As rotas `GET /auth/google` e `GET /auth/google/callback` são
+  públicas (é o próprio fluxo de login). A lógica de criar/reusar/vincular usuário vive em
+  `AuthService.validateOAuthLogin`, que reusa o mesmo `buildResponse` do login por senha — não há
+  segundo mecanismo de token. Configuração via `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e
+  `GOOGLE_CALLBACK_URL` (ver `apps/api/.env.example`).
+  - **Handoff do token no callback:** o callback é acessado por navegação do browser, não por
+    `fetch`, então não retorna JSON. Ele emite o JWT e faz `302` para
+    `${WEB_URL}/auth/callback#token=<jwt>` — o token vai no *fragment* (`#`), fora de logs de
+    servidor e do header `Referer`. A página `apps/web/src/app/auth/callback/page.tsx` lê o
+    fragment e salva a sessão. Falha/cancelamento do provedor redireciona para
+    `${WEB_URL}/login?error=oauth`, sem vazar detalhe interno.
+- **Conta institucional (.edu.br):** ainda não implementada — o mecanismo (Google Workspace edu,
+  SAML/Shibboleth, IdP institucional) é decisão de arquitetura em aberto. Ao implementar, siga o
+  mesmo padrão de `packages/auth` acima; não crie um fluxo de auth paralelo fora dele.
 
 - **Frontend:** nunca chame `fetch` diretamente para a API. Use o wrapper
   `apps/web/src/lib/api-client.ts` (`apiClient.get/post`), que já anexa o header
