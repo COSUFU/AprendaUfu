@@ -121,6 +121,33 @@ describe('AuthService.validateOAuthLogin', () => {
     expect(response.user.id).toBe('user-3');
   });
 
+  it('refaz a resolução quando ocorre violação de unicidade concorrente (P2002)', async () => {
+    authAccount.findUnique.mockResolvedValue(null);
+    user.findUnique.mockResolvedValue(null);
+    user.create.mockRejectedValueOnce({ code: 'P2002' }).mockResolvedValueOnce({
+      id: 'user-5',
+      username: 'anaribeiro',
+      email: profile.email,
+      role: 'student',
+    });
+
+    const response = await service.validateOAuthLogin(profile);
+
+    expect(user.create).toHaveBeenCalledTimes(2);
+    expect(response.user.id).toBe('user-5');
+  });
+
+  it('propaga o erro quando a violação de unicidade persiste após as tentativas', async () => {
+    authAccount.findUnique.mockResolvedValue(null);
+    user.findUnique.mockResolvedValue(null);
+    user.create.mockRejectedValue({ code: 'P2002' });
+
+    await expect(service.validateOAuthLogin(profile)).rejects.toMatchObject({
+      code: 'P2002',
+    });
+    expect(user.create).toHaveBeenCalledTimes(3);
+  });
+
   it('gera username alternativo quando o derivado já existe', async () => {
     authAccount.findUnique.mockResolvedValue(null);
     user.findUnique

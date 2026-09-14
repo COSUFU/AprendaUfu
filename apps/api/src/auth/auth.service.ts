@@ -8,6 +8,18 @@ import { prisma, User } from '@aprendaufu/database';
 import { comparePassword, hashPassword, OAuthProfile } from '@aprendaufu/auth';
 import type { AuthResponse } from '@aprendaufu/shared-types';
 
+const PRISMA_UNIQUE_VIOLATION = 'P2002';
+const MAX_OAUTH_RESOLVE_ATTEMPTS = 3;
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: string }).code === PRISMA_UNIQUE_VIOLATION
+  );
+}
+
 @Injectable()
 export class AuthService {
   constructor(private readonly jwt: JwtService) {}
@@ -49,6 +61,23 @@ export class AuthService {
       throw new UnauthorizedException('E-mail nao verificado pelo provedor');
     }
 
+    for (let attempt = 1; attempt <= MAX_OAUTH_RESOLVE_ATTEMPTS; attempt++) {
+      try {
+        return await this.resolveOAuthUser(profile);
+      } catch (error) {
+        if (isUniqueViolation(error) && attempt < MAX_OAUTH_RESOLVE_ATTEMPTS) {
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    throw new ConflictException(
+      'Nao foi possivel concluir o login com o provedor',
+    );
+  }
+
+  private async resolveOAuthUser(profile: OAuthProfile): Promise<AuthResponse> {
     const existingAccount = await prisma.authAccount.findUnique({
       where: {
         provider_providerId: {
