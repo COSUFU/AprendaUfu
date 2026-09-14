@@ -1,4 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
+import { PinoLogger } from 'nestjs-pino';
 import { prisma } from '@aprendaufu/database';
 import { OAuthProfile } from '@aprendaufu/auth';
 import { AuthService } from './auth.service';
@@ -40,9 +41,16 @@ describe('AuthService.validateOAuthLogin', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new AuthService({
-      sign: jest.fn().mockReturnValue('signed-jwt'),
-    } as unknown as JwtService);
+    service = new AuthService(
+      {
+        sign: jest.fn().mockReturnValue('signed-jwt'),
+      } as unknown as JwtService,
+      {
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+      } as unknown as PinoLogger,
+    );
   });
 
   it('rejeita login quando o e-mail nao foi verificado pelo provedor', async () => {

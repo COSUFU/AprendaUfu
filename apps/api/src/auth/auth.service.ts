@@ -4,12 +4,23 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { prisma, User } from '@aprendaufu/database';
 import { comparePassword, hashPassword, OAuthProfile } from '@aprendaufu/auth';
 import type { AuthResponse } from '@aprendaufu/shared-types';
 
 const PRISMA_UNIQUE_VIOLATION = 'P2002';
 const MAX_OAUTH_RESOLVE_ATTEMPTS = 3;
+
+const AUTH_EVENTS = {
+  register: 'auth.register',
+  loginSuccess: 'auth.login.success',
+  loginFailure: 'auth.login.failure',
+  oauthReused: 'auth.oauth.reused',
+  oauthLinked: 'auth.oauth.account_linked',
+  oauthCreated: 'auth.oauth.user_created',
+  oauthUnverified: 'auth.oauth.email_unverified',
+} as const;
 
 function isUniqueViolation(error: unknown): boolean {
   return (
@@ -22,7 +33,10 @@ function isUniqueViolation(error: unknown): boolean {
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwt: JwtService) {}
+  constructor(
+    private readonly jwt: JwtService,
+    @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
+  ) {}
 
   async register(
     username: string,
@@ -41,6 +55,10 @@ export class AuthService {
       data: { username, email, passwordHash },
     });
 
+    this.logger.info(
+      { event: AUTH_EVENTS.register, userId: user.id },
+      'usuario registrado',
+    );
     return this.buildResponse(user);
   }
 
@@ -50,14 +68,26 @@ export class AuthService {
       !user?.passwordHash ||
       !(await comparePassword(password, user.passwordHash))
     ) {
+      this.logger.warn(
+        { event: AUTH_EVENTS.loginFailure },
+        'falha de login por senha',
+      );
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    this.logger.info(
+      { event: AUTH_EVENTS.loginSuccess, userId: user.id },
+      'login por senha',
+    );
     return this.buildResponse(user);
   }
 
   async validateOAuthLogin(profile: OAuthProfile): Promise<AuthResponse> {
     if (!profile.emailVerified) {
+      this.logger.warn(
+        { event: AUTH_EVENTS.oauthUnverified, provider: profile.provider },
+        'login OAuth com e-mail nao verificado',
+      );
       throw new UnauthorizedException('E-mail nao verificado pelo provedor');
     }
 
@@ -88,6 +118,14 @@ export class AuthService {
       include: { user: true },
     });
     if (existingAccount) {
+      this.logger.info(
+        {
+          event: AUTH_EVENTS.oauthReused,
+          userId: existingAccount.user.id,
+          provider: profile.provider,
+        },
+        'login OAuth reutilizando conta',
+      );
       return this.buildResponse(existingAccount.user);
     }
 
@@ -102,6 +140,14 @@ export class AuthService {
           providerId: profile.providerId,
         },
       });
+      this.logger.info(
+        {
+          event: AUTH_EVENTS.oauthLinked,
+          userId: userWithSameEmail.id,
+          provider: profile.provider,
+        },
+        'conta OAuth vinculada a usuario existente',
+      );
       return this.buildResponse(userWithSameEmail);
     }
 
@@ -119,6 +165,14 @@ export class AuthService {
         },
       },
     });
+    this.logger.info(
+      {
+        event: AUTH_EVENTS.oauthCreated,
+        userId: user.id,
+        provider: profile.provider,
+      },
+      'usuario criado via OAuth',
+    );
     return this.buildResponse(user);
   }
 
