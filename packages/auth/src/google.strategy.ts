@@ -20,7 +20,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, GOOGLE_PROVIDER) 
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       callbackURL: process.env.GOOGLE_CALLBACK_URL as string,
       scope: ['email', 'profile'],
-      state: true,
     });
   }
 

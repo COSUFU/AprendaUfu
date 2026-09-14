@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { AuthGuard } from '@nestjs/passport';
 import { GoogleOAuthGuard, OAuthProfile } from '@aprendaufu/auth';
 import { AuthService } from './auth.service';
 import { LoginBody, RegisterBody } from './dto';
@@ -27,7 +28,7 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(GoogleOAuthGuard)
+  @UseGuards(AuthGuard('google'))
   googleAuth() {}
 
   @Get('google/callback')
