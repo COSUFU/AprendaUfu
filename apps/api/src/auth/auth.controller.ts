@@ -9,9 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
-import { GoogleOAuthGuard, OAuthProfile } from '@aprendaufu/auth';
+import {
+  GoogleAuthGuard,
+  GoogleOAuthGuard,
+  OAuthProfile,
+} from '@aprendaufu/auth';
 import { AuthService } from './auth.service';
 import { LoginBody, RegisterBody } from './dto';
 
@@ -36,7 +39,7 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   googleAuth() {}
 
   @Get('google/callback')
@@ -47,6 +50,9 @@ export class AuthController {
   ) {
     const webUrl = process.env.WEB_URL ?? 'http://localhost:3000';
     if (!req.user) {
+      this.logger.warn(
+        'Callback OAuth sem usuario (state invalido ou cancelamento)',
+      );
       res.redirect(`${webUrl}/login?error=oauth`);
       return;
     }
