@@ -8,6 +8,7 @@ export interface OAuthProfile {
   provider: string;
   providerId: string;
   email: string;
+  emailVerified: boolean;
   displayName: string;
   avatarUrl: string | null;
 }
@@ -34,6 +35,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, GOOGLE_PROVIDER) 
       provider: GOOGLE_PROVIDER,
       providerId: profile.id,
       email,
+      emailVerified: profile._json.email_verified === true,
       displayName: profile.displayName,
       avatarUrl: profile.photos?.[0]?.value ?? null,
     };

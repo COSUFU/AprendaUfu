@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Post,
   Req,
   Res,
@@ -15,6 +16,8 @@ import { LoginBody, RegisterBody } from './dto';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
@@ -43,7 +46,15 @@ export class AuthController {
       return;
     }
 
-    const auth = await this.authService.validateOAuthLogin(req.user);
-    res.redirect(`${webUrl}/auth/callback#token=${auth.accessToken}`);
+    try {
+      const auth = await this.authService.validateOAuthLogin(req.user);
+      res.redirect(`${webUrl}/auth/callback#token=${auth.accessToken}`);
+    } catch (error) {
+      this.logger.error(
+        'Falha ao concluir login OAuth',
+        error instanceof Error ? error.stack : String(error),
+      );
+      res.redirect(`${webUrl}/login?error=oauth`);
+    }
   }
 }

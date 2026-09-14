@@ -45,6 +45,10 @@ export class AuthService {
   }
 
   async validateOAuthLogin(profile: OAuthProfile): Promise<AuthResponse> {
+    if (!profile.emailVerified) {
+      throw new UnauthorizedException('E-mail nao verificado pelo provedor');
+    }
+
     const existingAccount = await prisma.authAccount.findUnique({
       where: {
         provider_providerId: {

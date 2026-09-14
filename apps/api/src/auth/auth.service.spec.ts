@@ -33,6 +33,7 @@ describe('AuthService.validateOAuthLogin', () => {
     provider: 'google',
     providerId: 'google-123',
     email: 'ana.ribeiro@aluno.univ.br',
+    emailVerified: true,
     displayName: 'Ana Ribeiro',
     avatarUrl: 'https://example.com/ana.png',
   };
@@ -42,6 +43,17 @@ describe('AuthService.validateOAuthLogin', () => {
     service = new AuthService({
       sign: jest.fn().mockReturnValue('signed-jwt'),
     } as unknown as JwtService);
+  });
+
+  it('rejeita login quando o e-mail nao foi verificado pelo provedor', async () => {
+    await expect(
+      service.validateOAuthLogin({ ...profile, emailVerified: false }),
+    ).rejects.toThrow('E-mail nao verificado pelo provedor');
+
+    expect(authAccount.findUnique).not.toHaveBeenCalled();
+    expect(user.findUnique).not.toHaveBeenCalled();
+    expect(user.create).not.toHaveBeenCalled();
+    expect(authAccount.create).not.toHaveBeenCalled();
   });
 
   it('reusa o usuário quando já existe conta do provedor', async () => {
