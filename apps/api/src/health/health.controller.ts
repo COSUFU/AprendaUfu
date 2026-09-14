@@ -5,8 +5,10 @@ import {
   HealthIndicatorResult,
   HealthIndicatorService,
 } from '@nestjs/terminus';
+import { SkipThrottle } from '@nestjs/throttler';
 import { prisma } from '@aprendaufu/database';
 
+@SkipThrottle()
 @Controller('health')
 export class HealthController {
   constructor(
