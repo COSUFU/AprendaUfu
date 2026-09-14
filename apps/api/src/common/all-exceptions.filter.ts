@@ -42,7 +42,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<Request & { id?: string }>();
     const response = ctx.getResponse<Response>();
 
     const status =
@@ -57,6 +57,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     this.logger.error(
       {
+        reqId: request.id,
         method: request.method,
         url: request.url,
         status,
