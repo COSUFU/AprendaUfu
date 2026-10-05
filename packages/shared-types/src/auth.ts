@@ -17,3 +17,9 @@ export interface AuthResponse {
     email: string;
   };
 }
+
+export interface SessionUser {
+  id: string;
+  username: string;
+  email: string;
+}
