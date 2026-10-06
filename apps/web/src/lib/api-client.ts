@@ -1,6 +1,6 @@
 import { MESSAGES } from '@aprendaufu/messages';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
 const MAX_ATTEMPTS = 3;

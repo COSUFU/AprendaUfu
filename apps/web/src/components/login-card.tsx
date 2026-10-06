@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -16,8 +16,10 @@ import {
   Label,
 } from "@aprendaufu/ui";
 import { MESSAGES } from "@aprendaufu/messages";
-import { login, saveSession } from "@/lib/auth-client";
+import { googleLoginUrl, login, saveSession } from "@/lib/auth-client";
 import { ApiError } from "@/lib/api-client";
+
+const OAUTH_ERROR_MESSAGE = "Não foi possível entrar com o provedor. Tente de novo.";
 
 export function LoginCard() {
   const router = useRouter();
@@ -25,6 +27,18 @@ export function LoginCard() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("error") === "oauth") {
+      setError(OAUTH_ERROR_MESSAGE);
+    }
+  }, []);
+
+  function handleGoogleLogin() {
+    setGoogleLoading(true);
+    window.location.href = googleLoginUrl();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,12 +64,14 @@ export function LoginCard() {
       </CardHeader>
 
       <CardContent className="mt-6">
-        <Button variant="white">
+        <Button variant="white" onClick={handleGoogleLogin} disabled={googleLoading}>
           <GoogleIcon />
-          Continuar com Google
+          {googleLoading ? "Redirecionando..." : "Continuar com Google"}
         </Button>
 
-        <Button variant="subtle">Conta institucional (.edu.br)</Button>
+        <Button variant="subtle" disabled>
+          Conta institucional (.edu.br)
+        </Button>
 
         <DividerWithLabel label="ou com e-mail" />
 
