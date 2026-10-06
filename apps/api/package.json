@@ -23,6 +23,7 @@
   "dependencies": {
     "@aprendaufu/auth": "*",
     "@aprendaufu/database": "*",
+    "@aprendaufu/messages": "*",
     "@aprendaufu/shared-types": "*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",

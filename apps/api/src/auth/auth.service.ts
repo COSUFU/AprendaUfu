@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { prisma, User } from '@aprendaufu/database';
 import { comparePassword, hashPassword, OAuthProfile } from '@aprendaufu/auth';
+import { MESSAGES } from '@aprendaufu/messages';
 import type { AuthResponse } from '@aprendaufu/shared-types';
 
 const PRISMA_UNIQUE_VIOLATION = 'P2002';
@@ -47,7 +48,7 @@ export class AuthService {
       where: { OR: [{ email }, { username }] },
     });
     if (existing) {
-      throw new ConflictException('E-mail ou usuário já cadastrado');
+      throw new ConflictException(MESSAGES.auth.emailOrUsernameTaken);
     }
 
     const passwordHash = await hashPassword(password);
@@ -72,7 +73,7 @@ export class AuthService {
         { event: AUTH_EVENTS.loginFailure },
         'falha de login por senha',
       );
-      throw new UnauthorizedException('Credenciais inválidas');
+      throw new UnauthorizedException(MESSAGES.auth.invalidCredentials);
     }
 
     this.logger.info(
