@@ -15,6 +15,7 @@ import {
   Input,
   Label,
 } from "@aprendaufu/ui";
+import { MESSAGES } from "@aprendaufu/messages";
 import { googleLoginUrl, login, saveSession } from "@/lib/auth-client";
 import { ApiError } from "@/lib/api-client";
 
@@ -49,7 +50,7 @@ export function LoginCard() {
       saveSession(auth);
       router.push("/");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Não foi possível entrar. Tente de novo.");
+      setError(err instanceof ApiError ? err.message : MESSAGES.form.loginFailed);
     } finally {
       setLoading(false);
     }
